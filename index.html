@@ -268,7 +268,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <h2 id="page-title">Home</h2>
         <p id="page-sub">Your 1099 financial overview</p>
       </div>
-      <div style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace">Tax year 2025</div>
+      <div style="font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace">Tax year 2026</div>
     </div>
     <div class="content">
 
@@ -354,7 +354,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="warn-box"><strong>Counts:</strong> Client meetings, networking events, scouting school locations, supply runs. <strong>Doesn't count:</strong> Regular commuting. Since you work from home, most business driving qualifies!</div>
         <div class="card">
           <div class="card-title">Log a trip</div>
-          <div class="card-sub">2025 IRS rate: 70¢ per mile. Log it the same day.</div>
+          <div class="card-sub">2026 IRS rate: 70¢ per mile. Log it the same day.</div>
           <div class="form-grid">
             <div class="field"><label>Date</label><input type="date" id="mil-date"></div>
             <div class="field"><label>Business purpose</label><div class="hint">Why were you driving?</div><input type="text" id="mil-purpose" placeholder="e.g. Meeting with rental space owner"></div>
@@ -375,7 +375,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div id="panel-taxes" style="display:none">
         <div class="explainer"><strong>As a 1099 contractor, you pay taxes four times a year.</strong> These quarterly estimated payments replace paycheck withholding. Miss them and you'll owe a penalty. Estimates below are based on what you've logged.</div>
         <div class="card">
-          <div class="card-title">Your 2025 quarterly payments</div>
+          <div class="card-title">Your 2026 quarterly payments</div>
           <div class="card-sub">Pay at <strong>IRS.gov/payments</strong> → Direct Pay (free). Check the box each time you pay.</div>
           <div class="q-grid" id="q-cards"></div>
         </div>
@@ -390,7 +390,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="explainer"><strong>Your Schedule C summary — your annual self-employment tax report.</strong> Organized by IRS line numbers. Print this or email it directly to your accountant using the button below.</div>
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px" class="no-print">
-            <div><div class="card-title">IRS Schedule C — Profit or Loss from Business</div><div style="font-size:13px;color:var(--text-muted)">Sole Proprietorship · Tax Year 2025</div></div>
+            <div><div class="card-title">IRS Schedule C — Profit or Loss from Business</div><div style="font-size:13px;color:var(--text-muted)">Sole Proprietorship · Tax Year 2026</div></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button>
               <button class="btn btn-green btn-sm" onclick="showEmailModal()">✉️ Email to accountant</button>
@@ -715,10 +715,8 @@ function renderMileage() {
 function renderTaxes() {
   const t = calcTotals();
   const qInfo = [
-    { q: 'Q1', months: 'Jan–Mar 2025', due: 'April 15, 2025' },
-    { q: 'Q2', months: 'Apr–May 2025', due: 'June 16, 2025' },
-    { q: 'Q3', months: 'Jun–Aug 2025', due: 'Sept 15, 2025' },
-    { q: 'Q4', months: 'Sep–Dec 2025', due: 'Jan 15, 2026' },
+    { q: 'Q3', months: 'Jun–Sep 2026', due: 'Sept 15, 2026' },
+    { q: 'Q4', months: 'Oct–Dec 2026', due: 'Jan 15, 2027' },
   ];
   document.getElementById('q-cards').innerHTML = qInfo.map((q, i) => `
     <div class="q-card ${userSettings.q_paid[i] ? 'paid' : ''}">
@@ -914,7 +912,7 @@ async function sendEmail() {
 
   const html = `
     <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a18">
-      <h1 style="font-size:20px;font-weight:600;margin-bottom:4px">Schedule C Summary — Tax Year 2025</h1>
+      <h1 style="font-size:20px;font-weight:600;margin-bottom:4px">Schedule C Summary — Tax Year 2026</h1>
       <p style="color:#6b6b66;font-size:14px;margin-bottom:24px">Prepared from 1099 Tracker · Apogee Topsail · Self-employed</p>
       <h2 style="font-size:15px;font-weight:600;border-bottom:2px solid #eee;padding-bottom:6px;margin-bottom:12px">Part I — Income</h2>
       <table style="width:100%">
@@ -939,7 +937,7 @@ async function sendEmail() {
     const res = await fetch('/api/send-summary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to, subject: `Schedule C Summary — Tax Year 2025 (Apogee Topsail)`, html }),
+      body: JSON.stringify({ to, subject: `Schedule C Summary — Tax Year 2026 (Apogee Topsail)`, html }),
     });
     const result = await res.json();
     if (result.success) {
