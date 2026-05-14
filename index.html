@@ -1,3 +1,5 @@
+Here's the complete code — copy everything between the lines and paste it into GitHub replacing your current index.html:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>1099 Tracker — Apogee Topsail</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;--green-mid:#0F6E56;
@@ -55,6 +58,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all 0.15s;border:none}
 .btn-green{background:var(--green);color:#fff}
 .btn-green:hover{background:var(--green-mid)}
+.btn-green:disabled{background:var(--gray-200);color:var(--gray-400);cursor:not-allowed}
 .btn-outline{background:var(--surface);border:1px solid var(--border-strong);color:var(--text)}
 .btn-outline:hover{background:var(--gray-50)}
 .btn-sm{padding:5px 12px;font-size:12px}
@@ -67,6 +71,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .entry-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
 .entry-amount{font-size:14px;font-weight:600;font-family:'DM Mono',monospace;white-space:nowrap}
 .entry-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.receipt-thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
 .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
 .badge-green{background:#EAF3DE;color:#3B6D11}
 .badge-amber{background:var(--amber-light);color:#854F0B}
@@ -97,6 +102,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .schc-line.total{font-weight:600;font-size:15px;border-top:2px solid var(--border-strong);border-bottom:none;padding-top:10px;margin-top:4px}
 .schc-line.subtotal{font-weight:500;background:var(--gray-50);padding:7px 10px;border-radius:6px;margin:4px 0}
 .schc-section{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-hint);margin:14px 0 6px}
+.upload-label{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--green-dark);background:var(--green-light);padding:7px 12px;border-radius:var(--radius);cursor:pointer;font-weight:500}
+.upload-label input{display:none}
+.upload-status{font-size:12px;color:var(--text-muted);margin-top:5px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal-img{max-width:90vw;max-height:90vh;border-radius:var(--radius)}
 .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
 .mobile-nav-inner{display:flex;justify-content:space-around;align-items:center;height:60px}
 .mobile-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;border:none;background:none;cursor:pointer;color:var(--text-muted);font-size:10px;font-family:'DM Sans',sans-serif;min-width:48px;transition:color 0.15s}
@@ -156,7 +166,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="card-sub">The biggest differences now that you're self-employed.</div>
         <div class="tip-item"><div class="tip-icon">📅</div><div><div class="tip-title">You pay taxes yourself</div><div class="tip-desc">No more automatic withholding. Since you start in June 2026, you have two payments — due Sept 15, 2026 and Jan 15, 2027.</div></div></div>
         <div class="tip-item"><div class="tip-icon">➖</div><div><div class="tip-title">Business costs lower your taxes</div><div class="tip-desc">Every deductible expense reduces your taxable income. More deductions = less taxes.</div></div></div>
-        <div class="tip-item"><div class="tip-icon">🧾</div><div><div class="tip-title">Keep records for everything</div><div class="tip-desc">Log expenses the same day. This app saves automatically in your browser.</div></div></div>
+        <div class="tip-item"><div class="tip-icon">🧾</div><div><div class="tip-title">Keep records for everything</div><div class="tip-desc">Log expenses and attach receipt photos the same day. This app saves automatically.</div></div></div>
       </div>
     </div>
   </div>
@@ -180,7 +190,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <div id="panel-expenses" style="display:none">
-    <div class="explainer"><strong>Expenses are costs you pay to do your job.</strong> Every deductible expense reduces your taxable income. When in doubt, log it — your accountant can remove things that don't qualify but can't add back what you forgot.</div>
+    <div class="explainer"><strong>Expenses are costs you pay to do your job.</strong> Every deductible expense reduces your taxable income. Attach a photo of your receipt right from your phone — it uploads to secure cloud storage.</div>
     <div class="warn-box"><strong>What counts?</strong> "Ordinary and necessary" for your work. Client coffee? Yes. Family groceries? No. Phone used 60% for work? Deduct 60%.</div>
     <div class="card">
       <div class="card-title">Log a business expense</div>
@@ -205,7 +215,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <div class="field"><label>Description</label><div class="hint">Be specific — "Canva Pro" not just "software."</div><input type="text" id="exp-desc" placeholder="e.g. Canva Pro subscription"></div>
       <div class="field"><label>Amount ($)</label><input type="number" id="exp-amount" placeholder="0.00" min="0" step="0.01"></div>
-      <button class="btn btn-green" onclick="addExpense()">+ Add expense</button>
+      <div class="field">
+        <label>Receipt photo (optional)</label>
+        <div class="hint">Take a photo with your phone or upload a file. Saves securely to the cloud.</div>
+        <label class="upload-label">
+          📷 Attach receipt
+          <input type="file" id="exp-receipt" accept="image/*,application/pdf" capture="environment">
+        </label>
+        <div class="upload-status" id="upload-status"></div>
+      </div>
+      <button class="btn btn-green" id="exp-btn" onclick="addExpense()">+ Add expense</button>
     </div>
     <div class="card"><div class="card-title">Expense log</div><div id="expense-list"></div></div>
   </div>
@@ -233,7 +252,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <div id="panel-taxes" style="display:none">
-    <div class="explainer"><strong>Since you're starting in June 2026, you only have two quarterly payments this year.</strong> Q1 and Q2 don't apply. Your first payment is due September 15, 2026. Pay free at <strong>IRS.gov/payments</strong> → Direct Pay.</div>
+    <div class="explainer"><strong>Since you're starting in June 2026, you only have two quarterly payments this year.</strong> Q1 and Q2 don't apply. First payment due September 15, 2026. Pay free at <strong>IRS.gov/payments</strong> → Direct Pay.</div>
     <div class="card">
       <div class="card-title">Your 2026 quarterly payments</div>
       <div class="card-sub">Check the box each time you send a payment.</div>
@@ -266,7 +285,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="card">
       <div class="card-title">Clear all data</div>
-      <div class="card-sub">This will permanently delete all your logged income, expenses, and mileage.</div>
+      <div class="card-sub">Permanently deletes all logged income, expenses, and mileage from your browser.</div>
       <button class="btn" style="background:var(--red-light);color:var(--red);border:none" onclick="clearAll()">Clear all data</button>
     </div>
   </div>
@@ -290,64 +309,71 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="mobile-more-item" onclick="mobileGo('settings')" id="mmore-settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
   </div>
 </div>
+<div id="img-modal" class="modal-overlay" style="display:none" onclick="closeImgModal()">
+  <img id="img-modal-src" class="modal-img" src="" alt="Receipt">
+</div>
 <script>
+const SUPABASE_URL = 'https://sfufarphabajrzeibufz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmdWZhcnBoYWJhanJ6ZWlidWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MzkyNTcsImV4cCI6MjA5NDMxNTI1N30.ZOhVHjAneTsf9_8U8KrZhukEyEGE5s4jjNAYFdzhW-Y';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const MILEAGE_RATE = 0.70;
+
 let income = [], expenses = [], mileage = [], qPaid = [false,false], incomeGoal = 37917;
 try {
-  income = JSON.parse(localStorage.getItem('at_income') || '[]');
-  expenses = JSON.parse(localStorage.getItem('at_expenses') || '[]');
-  mileage = JSON.parse(localStorage.getItem('at_mileage') || '[]');
-  qPaid = JSON.parse(localStorage.getItem('at_qpaid') || '[false,false]');
-  incomeGoal = parseFloat(localStorage.getItem('at_goal') || '37917');
+  income   = JSON.parse(localStorage.getItem('at_income')    || '[]');
+  expenses = JSON.parse(localStorage.getItem('at_expenses')  || '[]');
+  mileage  = JSON.parse(localStorage.getItem('at_mileage')   || '[]');
+  qPaid    = JSON.parse(localStorage.getItem('at_qpaid')     || '[false,false]');
+  incomeGoal = parseFloat(localStorage.getItem('at_goal')    || '37917');
 } catch(e) {}
 
 function save() {
   try {
-    localStorage.setItem('at_income', JSON.stringify(income));
+    localStorage.setItem('at_income',   JSON.stringify(income));
     localStorage.setItem('at_expenses', JSON.stringify(expenses));
-    localStorage.setItem('at_mileage', JSON.stringify(mileage));
-    localStorage.setItem('at_qpaid', JSON.stringify(qPaid));
-    localStorage.setItem('at_goal', incomeGoal);
+    localStorage.setItem('at_mileage',  JSON.stringify(mileage));
+    localStorage.setItem('at_qpaid',    JSON.stringify(qPaid));
+    localStorage.setItem('at_goal',     incomeGoal);
   } catch(e) {}
 }
 
-const fmt = n => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmt   = n => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
 const fmtMi = n => parseFloat(n).toFixed(1) + ' mi';
 function dedAmt(cat, amt) { return cat === 'Meals (50% deductible)' ? amt * 0.5 : Number(amt); }
 
 function calcTotals() {
-  const gross = income.filter(i => i.status === 'paid').reduce((s,i) => s + Number(i.amount), 0);
-  const pending = income.filter(i => i.status !== 'paid').reduce((s,i) => s + Number(i.amount), 0);
-  const expDed = expenses.reduce((s,e) => s + dedAmt(e.cat, e.amount), 0);
-  const miles = mileage.reduce((s,m) => s + Number(m.miles), 0);
+  const gross   = income.filter(i => i.status==='paid').reduce((s,i) => s+Number(i.amount), 0);
+  const pending = income.filter(i => i.status!=='paid').reduce((s,i) => s+Number(i.amount), 0);
+  const expDed  = expenses.reduce((s,e) => s+dedAmt(e.cat, e.amount), 0);
+  const miles   = mileage.reduce((s,m) => s+Number(m.miles), 0);
   const mileDed = miles * MILEAGE_RATE;
   const totalDed = expDed + mileDed;
-  const net = Math.max(0, gross - totalDed);
-  const seTax = net * 0.1413;
-  const seHalf = seTax * 0.5;
+  const net     = Math.max(0, gross - totalDed);
+  const seTax   = net * 0.1413;
+  const seHalf  = seTax * 0.5;
   const taxable = Math.max(0, net - seHalf);
-  const incTax = taxable * 0.22;
-  const total = seTax + incTax;
-  return { gross, pending, expDed, miles, mileDed, totalDed, net, seTax, seHalf, taxable, incTax, total, perQ: total / 2, eff: gross > 0 ? (total/gross)*100 : 0 };
+  const incTax  = taxable * 0.22;
+  const total   = seTax + incTax;
+  return { gross, pending, expDed, miles, mileDed, totalDed, net, seTax, seHalf, taxable, incTax, total, perQ: total/2, eff: gross>0?(total/gross)*100:0 };
 }
 
 const PAGES = {
-  home:['Home','Your 1099 financial overview'],
-  income:['Income','Track every payment you receive'],
+  home:    ['Home','Your 1099 financial overview'],
+  income:  ['Income','Track every payment you receive'],
   expenses:['Expenses','Log business costs and deductions'],
-  mileage:['Mileage','Track business driving at 70¢/mile'],
-  taxes:['Quarterly taxes','Your two payments for 2026'],
-  schedC:['Schedule C','Your annual tax summary — filed in 2027'],
+  mileage: ['Mileage','Track business driving at 70¢/mile'],
+  taxes:   ['Quarterly taxes','Your two payments for 2026'],
+  schedC:  ['Schedule C','Your annual tax summary — filed in 2027'],
   settings:['Settings','Income goal and data'],
 };
 const NAV_IDS = ['home','income','expenses','mileage','taxes','schedC','settings'];
 
 function go(id) {
-  document.querySelectorAll('.nav-item').forEach((b,i) => b.classList.toggle('active', NAV_IDS[i] === id));
-  document.querySelectorAll('[id^="panel-"]').forEach(p => p.style.display = 'none');
-  document.getElementById('panel-' + id).style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach((b,i) => b.classList.toggle('active', NAV_IDS[i]===id));
+  document.querySelectorAll('[id^="panel-"]').forEach(p => p.style.display='none');
+  document.getElementById('panel-'+id).style.display='block';
   document.getElementById('page-title').textContent = PAGES[id][0];
-  document.getElementById('page-sub').textContent = PAGES[id][1];
+  document.getElementById('page-sub').textContent   = PAGES[id][1];
   ({home:renderHome, income:renderIncome, expenses:renderExpenses, mileage:renderMileage, taxes:renderTaxes, schedC:renderSchedC, settings:renderSettings})[id]?.();
 }
 
@@ -359,7 +385,7 @@ function renderHome() {
     <div class="metric"><div class="metric-label">Total deductions</div><div class="metric-value money-green">${fmt(t.totalDed)}</div><div class="metric-help">Reduces taxable income</div></div>
     <div class="metric"><div class="metric-label">Estimated tax owed</div><div class="metric-value">${fmt(t.total)}</div><div class="metric-help">${t.eff.toFixed(1)}% effective rate</div></div>
   `;
-  const pct = Math.min(100, incomeGoal > 0 ? Math.round((t.gross / incomeGoal) * 100) : 0);
+  const pct = Math.min(100, incomeGoal>0 ? Math.round((t.gross/incomeGoal)*100) : 0);
   document.getElementById('goal-card').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
       <div class="card-title" style="margin-bottom:0">Income goal progress</div>
@@ -367,16 +393,16 @@ function renderHome() {
     </div>
     <div class="goal-bar-wrap"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
     <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
-      <span>${pct}% of goal</span><span>${fmt(Math.max(0, incomeGoal - t.gross))} to go</span>
+      <span>${pct}% of goal</span><span>${fmt(Math.max(0,incomeGoal-t.gross))} to go</span>
     </div>
   `;
   const tips = [];
   if (!income.length) tips.push({icon:'💰',title:'Log your first income',desc:'Head to Income and add every payment you receive — checks, transfers, cash.'});
   if (income.length && !expenses.length) tips.push({icon:'🧾',title:'Add expenses to lower taxes',desc:'Every business cost you log reduces what you owe. Go to Expenses and start adding.'});
   if (!mileage.length && income.length) tips.push({icon:'🚗',title:"Don't forget mileage",desc:'At 70¢/mile, 500 miles = $350 deduction. Every meeting and event counts.'});
-  if (!expenses.find(e => e.cat === 'Retirement contributions')) tips.push({icon:'🏦',title:'Open a SEP-IRA',desc:'Up to 25% of net income — fully deductible. Open at Fidelity, Vanguard, or Schwab.'});
-  if (!expenses.find(e => e.cat === 'Health insurance premiums') && income.length) tips.push({icon:'❤️',title:'Log health insurance premiums',desc:'100% of your health, dental, vision premiums are deductible.'});
-  if (t.total > 0 && qPaid.every(p => !p)) tips.push({icon:'📅',title:'First tax payment due Sept 15, 2026',desc:'Go to Quarterly Taxes to see the amount. Pay free at IRS.gov/payments.'});
+  if (!expenses.find(e => e.cat==='Retirement contributions')) tips.push({icon:'🏦',title:'Open a SEP-IRA',desc:'Up to 25% of net income — fully deductible. Open at Fidelity, Vanguard, or Schwab.'});
+  if (!expenses.find(e => e.cat==='Health insurance premiums') && income.length) tips.push({icon:'❤️',title:'Log health insurance premiums',desc:'100% of your health, dental, vision premiums are deductible.'});
+  if (t.total>0 && qPaid.every(p=>!p)) tips.push({icon:'📅',title:'First tax payment due Sept 15, 2026',desc:'Go to Quarterly Taxes to see the amount. Pay free at IRS.gov/payments.'});
   if (!tips.length) tips.push({icon:'✅',title:"You're on track!",desc:'Keep logging consistently. Complete records = lower tax bill + easier filing.'});
   document.getElementById('home-tips').innerHTML = tips.slice(0,4).map(tp =>
     `<div class="tip-item"><div class="tip-icon">${tp.icon}</div><div><div class="tip-title">${tp.title}</div><div class="tip-desc">${tp.desc}</div></div></div>`
@@ -385,8 +411,8 @@ function renderHome() {
 
 function renderIncome() {
   const el = document.getElementById('income-list');
-  if (!income.length) { el.innerHTML = '<div class="empty">No income logged yet.</div>'; return; }
-  const total = income.filter(i => i.status==='paid').reduce((s,i) => s+Number(i.amount), 0);
+  if (!income.length) { el.innerHTML='<div class="empty">No income logged yet.</div>'; return; }
+  const total = income.filter(i=>i.status==='paid').reduce((s,i)=>s+Number(i.amount),0);
   el.innerHTML = `<div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;font-size:13px"><span>${income.length} entries</span><span><strong>${fmt(total)}</strong> received</span></div>` +
     income.map((i,idx) => `
       <div class="entry-row">
@@ -397,15 +423,19 @@ function renderIncome() {
 
 function renderExpenses() {
   const el = document.getElementById('expense-list');
-  if (!expenses.length) { el.innerHTML = '<div class="empty">No expenses logged yet.</div>'; return; }
-  const total = expenses.reduce((s,e) => s+dedAmt(e.cat,e.amount), 0);
+  if (!expenses.length) { el.innerHTML='<div class="empty">No expenses logged yet.</div>'; return; }
+  const total = expenses.reduce((s,e)=>s+dedAmt(e.cat,e.amount),0);
   el.innerHTML = `<div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;font-size:13px"><span>${expenses.length} expenses</span><span><strong>${fmt(total)}</strong> deductible</span></div>` +
     expenses.map((e,idx) => {
       const ded = dedAmt(e.cat, e.amount);
+      const receiptHtml = e.receipt_url
+        ? `<img class="receipt-thumb" src="${e.receipt_url}" alt="Receipt" onclick="openImgModal('${e.receipt_url}')">`
+        : '';
       return `
         <div class="entry-row">
           <div class="entry-main"><div class="entry-title">${e.desc}</div><div class="entry-meta">${e.date} · ${e.cat}${e.cat==='Meals (50% deductible)'?' · <span class="badge badge-amber">50% rule</span>':''}</div></div>
-          <div class="entry-actions" style="flex-direction:column;align-items:flex-end;gap:2px">
+          <div class="entry-actions" style="flex-direction:column;align-items:flex-end;gap:3px">
+            ${receiptHtml}
             <div class="entry-amount">${fmt(e.amount)}</div>
             <div style="font-size:11px;color:var(--green-mid);font-family:'DM Mono',monospace">${fmt(ded)} deductible</div>
             <button class="btn-del" onclick="delExpense(${idx})">✕</button>
@@ -416,8 +446,8 @@ function renderExpenses() {
 
 function renderMileage() {
   const el = document.getElementById('mileage-list');
-  if (!mileage.length) { el.innerHTML = '<div class="empty">No trips logged yet.</div>'; return; }
-  const totalMi = mileage.reduce((s,m) => s+Number(m.miles), 0);
+  if (!mileage.length) { el.innerHTML='<div class="empty">No trips logged yet.</div>'; return; }
+  const totalMi = mileage.reduce((s,m)=>s+Number(m.miles),0);
   el.innerHTML = `<div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;font-size:13px"><span>${fmtMi(totalMi)} total</span><span class="money-green"><strong>${fmt(totalMi*MILEAGE_RATE)}</strong> deduction</span></div>` +
     mileage.map((m,idx) => `
       <div class="entry-row">
@@ -471,7 +501,7 @@ function renderTaxes() {
 function renderSchedC() {
   const t = calcTotals();
   const catTotals = {};
-  expenses.forEach(e => { const d = dedAmt(e.cat, e.amount); catTotals[e.cat] = (catTotals[e.cat]||0) + d; });
+  expenses.forEach(e => { const d=dedAmt(e.cat,e.amount); catTotals[e.cat]=(catTotals[e.cat]||0)+d; });
   const lineMap = {
     'Advertising & marketing':'Line 8 — Advertising',
     'Home office':'Line 30 — Home office',
@@ -486,10 +516,10 @@ function renderSchedC() {
     'Travel':'Line 24a — Travel',
     'Other':'Line 27a — Other expenses',
   };
-  const paidIncome = income.filter(i => i.status==='paid').reduce((s,i) => s+Number(i.amount), 0);
-  const pendingIncome = income.filter(i => i.status!=='paid').reduce((s,i) => s+Number(i.amount), 0);
+  const paidIncome = income.filter(i=>i.status==='paid').reduce((s,i)=>s+Number(i.amount),0);
+  const pendingIncome = income.filter(i=>i.status!=='paid').reduce((s,i)=>s+Number(i.amount),0);
   const expLines = Object.keys(catTotals).length
-    ? Object.entries(catTotals).map(([cat,amt]) => `<div class="schc-line"><span>${lineMap[cat]||cat}</span><span>${fmt(amt)}</span></div>`).join('')
+    ? Object.entries(catTotals).map(([cat,amt])=>`<div class="schc-line"><span>${lineMap[cat]||cat}</span><span>${fmt(amt)}</span></div>`).join('')
     : '<div style="font-size:13px;color:var(--text-muted);padding:8px 0">No expenses logged yet.</div>';
   document.getElementById('schedC-report').innerHTML = `
     <div class="schc-section">Part I — Income (Jun–Dec 2026)</div>
@@ -511,78 +541,109 @@ function renderSettings() {
   document.getElementById('goal-input').value = incomeGoal;
 }
 
+async function addExpense() {
+  const d   = document.getElementById('exp-date').value;
+  const cat = document.getElementById('exp-cat').value;
+  const desc= document.getElementById('exp-desc').value.trim();
+  const a   = parseFloat(document.getElementById('exp-amount').value);
+  const file= document.getElementById('exp-receipt').files[0];
+  if (!d||isNaN(a)||a<=0) { alert('Please fill in date and amount.'); return; }
+  const btn = document.getElementById('exp-btn');
+  const statusEl = document.getElementById('upload-status');
+  btn.disabled=true; btn.textContent='Saving...';
+
+  let receipt_url = null;
+  if (file) {
+    statusEl.textContent = 'Uploading receipt...';
+    const ext = file.name.split('.').pop();
+    const path = `receipts/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: upErr } = await sb.storage.from('receipts').upload(path, file, { upsert: true });
+    if (!upErr) {
+      const { data: urlData } = sb.storage.from('receipts').getPublicUrl(path);
+      receipt_url = urlData?.publicUrl || null;
+      statusEl.textContent = '✓ Receipt uploaded!';
+    } else {
+      statusEl.textContent = 'Receipt upload failed — expense saved without photo.';
+    }
+  }
+
+  expenses.unshift({ date:d, cat, desc:desc||cat, amount:a, receipt_url });
+  save(); renderExpenses(); renderHome();
+  btn.disabled=false; btn.textContent='+ Add expense';
+  ['exp-desc','exp-amount'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('exp-receipt').value='';
+  setTimeout(() => { statusEl.textContent=''; }, 3000);
+}
+
 function addIncome() {
-  const d = document.getElementById('inc-date').value;
-  const c = document.getElementById('inc-client').value.trim();
-  const desc = document.getElementById('inc-desc').value.trim();
-  const a = parseFloat(document.getElementById('inc-amount').value);
-  const s = document.getElementById('inc-status').value;
+  const d=document.getElementById('inc-date').value;
+  const c=document.getElementById('inc-client').value.trim();
+  const desc=document.getElementById('inc-desc').value.trim();
+  const a=parseFloat(document.getElementById('inc-amount').value);
+  const s=document.getElementById('inc-status').value;
   if (!d||!c||isNaN(a)||a<=0) { alert('Please fill in date, who paid you, and the amount.'); return; }
   income.unshift({date:d, client:c, desc:desc||'Work completed', amount:a, status:s});
   save(); renderIncome(); renderHome();
   ['inc-client','inc-desc','inc-amount'].forEach(id => document.getElementById(id).value='');
 }
 
-function addExpense() {
-  const d = document.getElementById('exp-date').value;
-  const cat = document.getElementById('exp-cat').value;
-  const desc = document.getElementById('exp-desc').value.trim();
-  const a = parseFloat(document.getElementById('exp-amount').value);
-  if (!d||isNaN(a)||a<=0) { alert('Please fill in date and amount.'); return; }
-  expenses.unshift({date:d, cat, desc:desc||cat, amount:a});
-  save(); renderExpenses(); renderHome();
-  ['exp-desc','exp-amount'].forEach(id => document.getElementById(id).value='');
-}
-
 function addMileage() {
-  const d = document.getElementById('mil-date').value;
-  const p = document.getElementById('mil-purpose').value.trim();
-  const f = document.getElementById('mil-from').value.trim();
-  const to = document.getElementById('mil-to').value.trim();
-  const m = parseFloat(document.getElementById('mil-miles').value);
+  const d=document.getElementById('mil-date').value;
+  const p=document.getElementById('mil-purpose').value.trim();
+  const f=document.getElementById('mil-from').value.trim();
+  const to=document.getElementById('mil-to').value.trim();
+  const m=parseFloat(document.getElementById('mil-miles').value);
   if (!d||isNaN(m)||m<=0) { alert('Please fill in date and miles.'); return; }
   mileage.unshift({date:d, purpose:p||'Business trip', from:f||'—', to:to||'—', miles:m});
   save(); renderMileage(); renderHome();
   ['mil-purpose','mil-from','mil-to','mil-miles'].forEach(id => document.getElementById(id).value='');
 }
 
-function delIncome(i) { if(confirm('Remove this entry?')) { income.splice(i,1); save(); renderIncome(); renderHome(); } }
+function delIncome(i)  { if(confirm('Remove this entry?'))   { income.splice(i,1);   save(); renderIncome();   renderHome(); } }
 function delExpense(i) { if(confirm('Remove this expense?')) { expenses.splice(i,1); save(); renderExpenses(); renderHome(); } }
-function delMileage(i) { if(confirm('Remove this trip?')) { mileage.splice(i,1); save(); renderMileage(); renderHome(); } }
-function toggleQ(i) { qPaid[i]=!qPaid[i]; save(); renderTaxes(); }
+function delMileage(i) { if(confirm('Remove this trip?'))    { mileage.splice(i,1);  save(); renderMileage();  renderHome(); } }
+function toggleQ(i)    { qPaid[i]=!qPaid[i]; save(); renderTaxes(); }
 
 function saveGoal() {
-  const val = parseFloat(document.getElementById('goal-input').value);
+  const val=parseFloat(document.getElementById('goal-input').value);
   if (isNaN(val)||val<=0) { alert('Please enter a valid goal.'); return; }
-  incomeGoal = val; save(); alert('Goal saved!'); renderHome();
+  incomeGoal=val; save(); alert('Goal saved!'); renderHome();
 }
 
 function clearAll() {
   if (confirm('Are you sure? This permanently deletes all your data.')) {
     income=[]; expenses=[]; mileage=[]; qPaid=[false,false];
-    save(); renderHome(); renderIncome(); renderExpenses(); renderMileage();
+    save(); renderHome(); go('home');
     alert('All data cleared.');
   }
 }
 
-const MOBILE_NAV_IDS = ['home','income','expenses','mileage'];
+function openImgModal(url) { document.getElementById('img-modal-src').src=url; document.getElementById('img-modal').style.display='flex'; }
+function closeImgModal()   { document.getElementById('img-modal').style.display='none'; }
+
+const MOBILE_NAV_IDS  = ['home','income','expenses','mileage'];
 const MOBILE_MORE_IDS = ['taxes','schedC','settings'];
 function mobileGo(id) {
   closeMoreMenu(); go(id);
   MOBILE_NAV_IDS.forEach(n => { const el=document.getElementById('mnav-'+n); if(el) el.classList.toggle('active',n===id); });
-  const moreBtn = document.getElementById('mnav-more');
+  const moreBtn=document.getElementById('mnav-more');
   MOBILE_MORE_IDS.includes(id) ? moreBtn.classList.add('active') : moreBtn.classList.remove('active');
   MOBILE_MORE_IDS.forEach(n => { const el=document.getElementById('mmore-'+n); if(el) el.classList.toggle('active',n===id); });
 }
 function toggleMoreMenu() { document.getElementById('mobile-more-menu').classList.toggle('open'); }
-function closeMoreMenu() { document.getElementById('mobile-more-menu').classList.remove('open'); }
+function closeMoreMenu()  { document.getElementById('mobile-more-menu').classList.remove('open'); }
 document.addEventListener('click', function(e) {
   const menu=document.getElementById('mobile-more-menu');
   const btn=document.getElementById('mnav-more');
   if(menu&&btn&&!menu.contains(e.target)&&!btn.contains(e.target)) closeMoreMenu();
 });
 
-const today = new Date().toISOString().split('T')[0];
+document.getElementById('exp-receipt').addEventListener('change', function() {
+  const file = this.files[0];
+  if (file) document.getElementById('upload-status').textContent = `📎 ${file.name} selected`;
+});
+
+const today=new Date().toISOString().split('T')[0];
 ['inc-date','exp-date','mil-date'].forEach(id => { const el=document.getElementById(id); if(el) el.value=today; });
 renderHome();
 </script>
